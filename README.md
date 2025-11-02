@@ -23,6 +23,7 @@ This project aims to:
 - **Manufacturers:** Use insights to enhance EV design and safety measures.
 
 
+```markdown
 
 ## Technologies Used
 - **Programming Language:** Python  
@@ -36,34 +37,36 @@ This project aims to:
 
 EVE-ELECTRICAL VEHICLE EXPERT/
 │
-├── .venv/                           → Virtual environment (excluded from git)
+├── .venv/ → Virtual environment (excluded from git)
 │
 ├── app/
-│   └── eve_dashboard.py             → Streamlit dashboard for visualization
+│ └── eve_dashboard.py → Streamlit dashboard for visualization
 │
 ├── data/
-│   ├── cleaned_ev_data.csv          → Cleaned dataset
-│   ├── ev_charging_patterns.csv     → EV charging pattern data
-│   └── processed_ev_data.csv        → Final processed dataset
+│ ├── cleaned_ev_data.csv → Cleaned dataset
+│ ├── ev_charging_patterns.csv → EV charging pattern data
+│ └── processed_ev_data.csv → Final processed dataset
 │
 ├── models/
-│   ├── gradient_boosting_battery.pkl → Model predicting battery health
-│   ├── label_encoder.pkl             → Label encoder for classification
-│   └── random_forest_stress.pkl      → Model predicting stress risk
+│ ├── gradient_boosting_battery.pkl → Model predicting battery health
+│ ├── label_encoder.pkl → Label encoder for classification
+│ └── random_forest_stress.pkl → Model predicting stress risk
 │
 ├── reports/
-│   ├── actual_vs_predicted_battery_health.png
-│   └── feature_importance_random_forest.png
+│ ├── actual_vs_predicted_battery_health.png
+│ └── feature_importance_random_forest.png
 │
 ├── src/
-│   ├── data_cleaning.py             → Script for data preprocessing
-│   ├── EVE_pipeline.py              → Complete data-to-model pipeline
-│   ├── feature_engineering_eda.py   → Exploratory data analysis and feature creation
-│   └── ml_modeling.py               → Model training and evaluation script
+│ ├── data_cleaning.py → Script for data preprocessing
+│ ├── EVE_pipeline.py → Complete data-to-model pipeline
+│ ├── feature_engineering_eda.py → Exploratory data analysis and feature creation
+│ └── ml_modeling.py → Model training and evaluation script
 │
-├── .gitignore                       → Ignored files and folders
-├── requirements.txt                 → Python dependencies
-└── README.md                        → Project documentation
+├── .gitignore → Ignored files and folders
+├── requirements.txt → Python dependencies
+└── README.md → Project documentation
+
+
 
 ````
 
