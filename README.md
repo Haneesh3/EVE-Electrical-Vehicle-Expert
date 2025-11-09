@@ -31,9 +31,9 @@ This project aims to:
 - **Visualization Tool:** Plotly & Streamlit  
 - **Version Control:** Git and GitHub  
 
-```markdown
-## Folder Structure
 
+## Folder Structure
+```markdown
 
 EVE-ELECTRICAL VEHICLE EXPERT/
 │
@@ -41,6 +41,7 @@ EVE-ELECTRICAL VEHICLE EXPERT/
 │
 ├── app/
 │ └── eve_dashboard.py → Streamlit dashboard for visualization
+| |__ eve_chatbox.py -> chatbox code
 │
 ├── data/
 │ ├── cleaned_ev_data.csv → Cleaned dataset
@@ -61,7 +62,7 @@ EVE-ELECTRICAL VEHICLE EXPERT/
 │ ├── EVE_pipeline.py → Complete data-to-model pipeline
 │ ├── feature_engineering_eda.py → Exploratory data analysis and feature creation
 │ └── ml_modeling.py → Model training and evaluation script
-│
+│__ .env
 ├── .gitignore → Ignored files and folders
 ├── requirements.txt → Python dependencies
 └── README.md → Project documentation
