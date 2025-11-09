@@ -1,17 +1,10 @@
-Here’s your **final, complete and ready-to-copy** `README.md` — fully professional, structured exactly for your folder layout, and formatted cleanly for GitHub.
-Just copy and paste this entire block into your `README.md` file.
 
----
-
-```markdown
 # Electrical Vehicle Expert (EVE) – Internship Project
 
 ## Project Overview
 The **Electrical Vehicle Expert (EVE)** project focuses on analyzing electric vehicle (EV) performance data to predict **battery health**, **charging stress**, and **usage efficiency** using machine learning and interactive visualization through Streamlit.
 
-This internship project integrates data processing, feature engineering, model training, and an interactive dashboard to provide real-time insights into EV performance and predictive analytics.
-
----
+This  project integrates data processing, feature engineering, model training, and an interactive dashboard to provide real-time insights into EV performance and predictive analytics.
 
 ## Problem Statement
 Electric vehicle users and fleet operators face challenges in understanding and monitoring battery degradation, energy consumption, and thermal stress.  
@@ -22,7 +15,6 @@ This project aims to:
 - Enable better decision-making with data-driven insights.
 - Create a dashboard for easy interpretation of EV analytics.
 
----
 
 ## Usefulness
 - **EV Owners:** Monitor and improve energy and battery performance.  
@@ -30,7 +22,8 @@ This project aims to:
 - **Researchers:** Study correlations between charging behavior and battery life.  
 - **Manufacturers:** Use insights to enhance EV design and safety measures.
 
----
+
+```markdown
 
 ## Technologies Used
 - **Programming Language:** Python  
@@ -38,45 +31,46 @@ This project aims to:
 - **Visualization Tool:** Plotly & Streamlit  
 - **Version Control:** Git and GitHub  
 
----
 
 ## Folder Structure
-```
+
 
 EVE-ELECTRICAL VEHICLE EXPERT/
 │
-├── .venv/                           → Virtual environment (excluded from git)
+├── .venv/ → Virtual environment (excluded from git)
 │
 ├── app/
-│   └── eve_dashboard.py             → Streamlit dashboard for visualization
+│ └── eve_dashboard.py → Streamlit dashboard for visualization
 │
 ├── data/
-│   ├── cleaned_ev_data.csv          → Cleaned dataset
-│   ├── ev_charging_patterns.csv     → EV charging pattern data
-│   └── processed_ev_data.csv        → Final processed dataset
+│ ├── cleaned_ev_data.csv → Cleaned dataset
+│ ├── ev_charging_patterns.csv → EV charging pattern data
+│ └── processed_ev_data.csv → Final processed dataset
 │
 ├── models/
-│   ├── gradient_boosting_battery.pkl → Model predicting battery health
-│   ├── label_encoder.pkl             → Label encoder for classification
-│   └── random_forest_stress.pkl      → Model predicting stress risk
+│ ├── gradient_boosting_battery.pkl → Model predicting battery health
+│ ├── label_encoder.pkl → Label encoder for classification
+│ └── random_forest_stress.pkl → Model predicting stress risk
 │
 ├── reports/
-│   ├── actual_vs_predicted_battery_health.png
-│   └── feature_importance_random_forest.png
+│ ├── actual_vs_predicted_battery_health.png
+│ └── feature_importance_random_forest.png
 │
 ├── src/
-│   ├── data_cleaning.py             → Script for data preprocessing
-│   ├── EVE_pipeline.py              → Complete data-to-model pipeline
-│   ├── feature_engineering_eda.py   → Exploratory data analysis and feature creation
-│   └── ml_modeling.py               → Model training and evaluation script
+│ ├── data_cleaning.py → Script for data preprocessing
+│ ├── EVE_pipeline.py → Complete data-to-model pipeline
+│ ├── feature_engineering_eda.py → Exploratory data analysis and feature creation
+│ └── ml_modeling.py → Model training and evaluation script
 │
-├── .gitignore                       → Ignored files and folders
-├── requirements.txt                 → Python dependencies
-└── README.md                        → Project documentation
+├── .gitignore → Ignored files and folders
+├── requirements.txt → Python dependencies
+└── README.md → Project documentation
+
+
 
 ````
 
----
+
 
 ## Setup Instructions
 
@@ -170,7 +164,6 @@ You can test the dashboard by uploading any of the following CSV files from the 
 ## Author
 
 **Name:** Kandath Haneesh
-**Role:** Data Science Intern
 **Project:** Electrical Vehicle Expert (EVE)
 **Year:** 2025
 
