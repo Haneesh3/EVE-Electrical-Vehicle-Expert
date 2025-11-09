@@ -23,7 +23,7 @@ This project aims to:
 - **Manufacturers:** Use insights to enhance EV design and safety measures.
 
 
-```markdown
+
 
 ## Technologies Used
 - **Programming Language:** Python  
@@ -31,7 +31,7 @@ This project aims to:
 - **Visualization Tool:** Plotly & Streamlit  
 - **Version Control:** Git and GitHub  
 
-
+```markdown
 ## Folder Structure
 
 
