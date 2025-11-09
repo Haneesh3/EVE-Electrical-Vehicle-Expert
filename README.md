@@ -1,5 +1,5 @@
 
-# Electrical Vehicle Expert (EVE) – Internship Project
+# Electrical Vehicle Expert (EVE) – Project
 
 ## Project Overview
 The **Electrical Vehicle Expert (EVE)** project focuses on analyzing electric vehicle (EV) performance data to predict **battery health**, **charging stress**, and **usage efficiency** using machine learning and interactive visualization through Streamlit.
