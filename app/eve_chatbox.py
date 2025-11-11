@@ -1,175 +1,176 @@
-"""
-eve_chatbox.py
-EVE Smart AI Assistant for Electrical Vehicle Expert (EVE) Dashboard.
-
-Features:
-- Uses Gemini 2.5 Pro for detailed, analytical, structured EV insights
-- Clean UI (no sidebar clutter)
-- Supports dataset-based analysis and EV model comparisons
-"""
-
+# eve_chatbox.py
+# EVE AI Chat Assistant using Gemini 2.5 Pro + Tavily integration
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 import io
-import google.generativeai as genai
 import os
 from dotenv import load_dotenv
+import google.generativeai as genai
+
+# Optional Tavily search
+try:
+    from tavily import TavilyClient
+except ImportError:
+    TavilyClient = None
 
 
 def run_chatbox(df, user_df, selected_user):
-    """Run the EVE AI Chat Assistant using Gemini 2.5 Pro."""
+    """Run the EVE AI Chat Assistant using Gemini 2.5 Pro + Tavily integration."""
 
-    # -------------------------------------------------------------------
-    # Load Gemini API Key
-    # -------------------------------------------------------------------
+   
+    # Load environment variables
+    
     load_dotenv()
-    api_key = os.getenv("GEMINI_API_KEY")
+    gemini_key = os.getenv("GEMINI_API_KEY")
+    tavily_key = os.getenv("TAVILY_API_KEY")
 
-    if not api_key:
-        st.error("Missing Gemini API key. Please set GEMINI_API_KEY in your .env file.")
+    if not gemini_key:
+        st.error("Gemini API key missing. Please set GEMINI_API_KEY in your .env file.")
         return
 
-    genai.configure(api_key=api_key)
+    genai.configure(api_key=gemini_key)
 
-    # -------------------------------------------------------------------
-    # Chat UI Setup
-    # -------------------------------------------------------------------
-    st.markdown("### 💬 EVE Smart Assistant")
-    st.caption("Ask me anything about Electric Vehicles — model comparison, performance, or recommendations.")
+    
+    # Inject custom professional chat style
+    
+    st.markdown("""
+        <style>
+        .user-msg {
+            background-color: #2C2F35;
+            color: #E8E8E8;
+            border-radius: 12px;
+            padding: 12px 18px;
+            margin: 8px 0;
+            width: 90%;
+            margin-left: auto;
+        }
+        .assistant-msg {
+            background-color: #1E1F24;
+            color: #E8E8E8;
+            border-radius: 12px;
+            padding: 12px 18px;
+            margin: 8px 0;
+            width: 90%;
+            margin-right: auto;
+            border-left: 4px solid #4CC9F0;
+        }
+        .assistant-title {
+            color: #4CC9F0;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        </style>
+    """, unsafe_allow_html=True)
 
-    # Example prompts
-    st.markdown(
-        """
-        **Try asking me:**
-        - 🔋 *“Compare Tata Nexon EV and MG ZS EV.”*  
-        - ⚙️ *“Which EV has the best battery health?”*  
-        - 🚗 *“Suggest an EV under ₹20 lakh with fast charging.”*  
-        - 🧠 *“How can I maintain my EV battery for longer life?”*  
-        - 📈 *“Analyze my vehicle performance and stress risk.”*
-        """
-    )
+    
+    # Chat Header
+    
+    st.markdown("<h3 style='color:#4CC9F0;'>EVE Smart Assistant</h3>", unsafe_allow_html=True)
+    st.caption("Ask anything about EV performance, models, or current EV market updates.")
 
+    with st.expander("Example Prompts"):
+        st.markdown("""
+        - Compare Tata Nexon EV and MG ZS EV  
+        - What is the price of Hyundai Kona EV?  
+        - Suggest an EV under ₹20 lakh with fast charging  
+        - How can I improve my EV battery life?  
+        - Analyze my EV’s performance this week  
+        """)
+
+    
     # Initialize chat history
+    
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
 
-    # Display chat history
     for msg in st.session_state.chat_history:
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
+        if msg["role"] == "user":
+            st.markdown(f"<div class='user-msg'>{msg['content']}</div>", unsafe_allow_html=True)
+        else:
+            st.markdown(f"<div class='assistant-msg'><div class='assistant-title'>EVE Assistant</div>{msg['content']}</div>", unsafe_allow_html=True)
 
-    # Chat input
-    user_query = st.chat_input("Type your question about EVs, performance, or suggestions...")
-
+    
+    # User Input
+    
+    user_query = st.chat_input("Type your question about EVs, performance, or comparisons...")
     if not user_query:
         return
 
-    # Display user's message
-    st.chat_message("user").markdown(user_query)
+    st.markdown(f"<div class='user-msg'>{user_query}</div>", unsafe_allow_html=True)
     st.session_state.chat_history.append({"role": "user", "content": user_query})
 
     try:
-        # -------------------------------------------------------------------
-        # Prepare Dataset Context
-        # -------------------------------------------------------------------
+        
+        # Dataset Context
+        
         csv_buffer = io.StringIO()
         df.to_csv(csv_buffer, index=False)
         dataset_context = csv_buffer.getvalue()
 
-        # -------------------------------------------------------------------
-        # Detect EV Models in Query
-        # -------------------------------------------------------------------
-        ev_models = [m for m in df["Vehicle Model"].unique() if m.lower() in user_query.lower()]
-        comparison_table = None
+        
+        # Tavily — Live Market Data (prices, latest models)
+        
+        live_summary = ""
+        if tavily_key and TavilyClient and any(
+            word in user_query.lower() for word in ["price", "cost", "launch", "latest", "new", "model", "buy"]
+        ):
+            try:
+                tavily = TavilyClient(api_key=tavily_key)
+                results = tavily.search(query=f"latest EV market details: {user_query}", max_results=3)
 
-        if len(ev_models) >= 2:
-            st.info(f"Comparing EV Models: {', '.join(ev_models)}")
+                if "results" in results and len(results["results"]) > 0:
+                    sources_md = []
+                    for r in results["results"]:
+                        title = r.get("title", "Untitled")
+                        content = r.get("content", "").strip()
+                        url = r.get("url", "")
+                        sources_md.append(f"**{title}**\n\n{content[:400]}...\n[Read more]({url})")
 
-            comparison_table = (
-                df[df["Vehicle Model"].isin(ev_models)][
-                    [
-                        "Vehicle Model",
-                        "Battery Capacity (kWh)",
-                        "Charging Rate (kW)",
-                        "Energy Consumed (kWh)",
-                        "Temperature Stress",
-                        "Battery Health Score",
-                    ]
-                ]
-                .groupby("Vehicle Model")
-                .mean()
-                .reset_index()
-            )
+                    live_summary = "\n\n".join(sources_md)
 
-            # Display comparison table
-            st.markdown("### ⚙️ EV Model Comparison")
-            st.dataframe(comparison_table.style.highlight_max(axis=0, color="#4CC9F0"))
+                    st.markdown(f"<div class='assistant-msg'><div class='assistant-title'>Live Market Insights</div>{live_summary}</div>", unsafe_allow_html=True)
+                    st.session_state.chat_history.append({
+                        "role": "assistant",
+                        "content": f"<div class='assistant-title'>Live Market Insights</div>{live_summary}"
+                    })
+            except Exception as e:
+                st.warning(f"Tavily API error: {e}")
 
-            # Visualization - Bar Chart
-            st.markdown("### 📊 Performance Comparison")
-            melted = comparison_table.melt(id_vars="Vehicle Model", var_name="Metric", value_name="Value")
-            fig_bar = px.bar(
-                melted,
-                x="Metric",
-                y="Value",
-                color="Vehicle Model",
-                barmode="group",
-                text_auto=".2f",
-                color_discrete_sequence=px.colors.qualitative.Set2,
-            )
-            st.plotly_chart(fig_bar, use_container_width=True)
-
-            # Visualization - Radar Chart
-            st.markdown("### 🕸️ Efficiency Radar Chart")
-            fig_radar = px.line_polar(
-                melted,
-                r="Value",
-                theta="Metric",
-                color="Vehicle Model",
-                line_close=True,
-                markers=True,
-                color_discrete_sequence=px.colors.qualitative.Pastel,
-            )
-            fig_radar.update_traces(fill="toself", opacity=0.5)
-            st.plotly_chart(fig_radar, use_container_width=True)
-
-        # -------------------------------------------------------------------
-        # AI Prompt (Detailed & Structured)
-        # -------------------------------------------------------------------
+       
+        # Structured Gemini Prompt
+        
         prompt = f"""
-        You are **EVE**, a professional Electric Vehicle analytics assistant and advisor.
+        You are EVE — a professional Electric Vehicle analytics assistant.
 
-        You have access to detailed EV dataset information — battery health, charging rate,
-        energy consumption, temperature stress, and user performance metrics.
+        You have access to a dataset with:
+        battery health, charging rate, energy consumed, temperature stress, and usage ratio.
 
         Dataset sample (partial):
         {dataset_context[:15000]}
 
         Selected User: {selected_user}
-        User Question: {user_query}
+        User Query: {user_query}
 
-        Your goal is to provide a **comprehensive, structured, and data-driven response**.
-        Include:
-        1. Analytical Insights — interpret what the data reveals.
-        2. Numerical Evidence — mention averages, comparisons, or values.
-        3. Technical Explanation — describe causes and correlations.
-        4. Recommendations — offer practical or purchase advice.
-        5. Summary Points — finish with 3 concise takeaways.
+        Live Web Data (if available):
+        {live_summary[:1500]}
 
-        Respond professionally as an EV expert.
+        Provide a structured, detailed, and data-backed response including:
+        1. Analytical Insights
+        2. Numerical Evidence
+        3. Technical Explanation
+        4. Recommendations
+        5. Summary (2 concise takeaways)
         """
 
-        # -------------------------------------------------------------------
-        # Generate AI Response (Simple Gemini 2.5 Pro)
-        # -------------------------------------------------------------------
+        
+        # Gemini 2.5 Pro Response (Exact format requested)
+        
         model = genai.GenerativeModel("models/gemini-2.5-pro")
         response = model.generate_content(prompt)
         reply = response.text
 
-        # Display AI response
-        with st.chat_message("assistant"):
-            st.markdown(reply)
+        st.markdown(f"<div class='assistant-msg'><div class='assistant-title'>EVE Assistant</div>{reply}</div>", unsafe_allow_html=True)
         st.session_state.chat_history.append({"role": "assistant", "content": reply})
 
     except Exception as e:

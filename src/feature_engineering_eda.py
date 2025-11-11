@@ -32,7 +32,7 @@ def feature_engineering_and_eda(input_file: str, output_file: str = "data/proces
     """
 
     df = pd.read_csv(input_file)
-    print("✅ Cleaned dataset loaded successfully.")
+    print("Cleaned dataset loaded successfully.")
     print(f"Dataset shape: {df.shape}\n")
 
     
@@ -55,15 +55,15 @@ def feature_engineering_and_eda(input_file: str, output_file: str = "data/proces
     if {'Total Charging Sessions', 'Vehicle Age (years)'}.issubset(df.columns):
         df['Usage Ratio'] = df['Total Charging Sessions'] / (df['Vehicle Age (years)'] + 1)
 
-    print("✅ Feature engineering completed successfully.\n")
+    print("Feature engineering completed successfully.\n")
 
    
-    print("📊 Statistical Summary:")
+    print("Statistical Summary:")
     print(df.describe().T)
     print()
 
     
-    print("📈 Generating EDA visualizations...")
+    print(" Generating EDA visualizations...")
 
     plt.style.use('ggplot')
 
@@ -90,10 +90,10 @@ def feature_engineering_and_eda(input_file: str, output_file: str = "data/proces
     plt.tight_layout()
     plt.show()
 
-    print("✅ EDA visualizations completed.\n")
+    print(" EDA visualizations completed.\n")
 
    
-    print("⚙️  Scaling numeric features for ML modeling...")
+    print(" Scaling numeric features for ML modeling...")
 
     scaler = StandardScaler()
     numeric_features = df.select_dtypes(include=np.number).columns
@@ -101,12 +101,12 @@ def feature_engineering_and_eda(input_file: str, output_file: str = "data/proces
     df_scaled = df.copy()
     df_scaled[numeric_features] = scaler.fit_transform(df[numeric_features])
 
-    print("✅ Numeric features scaled successfully.\n")
+    print(" Numeric features scaled successfully.\n")
 
     
     df_scaled.to_csv(output_file, index=False)
-    print(f"💾 Processed dataset saved to: {output_file}")
-    print("🎯 Feature Engineering & EDA completed successfully.")
+    print(f" Processed dataset saved to: {output_file}")
+    print(" Feature Engineering & EDA completed successfully.")
 
 
 if __name__ == "__main__":
