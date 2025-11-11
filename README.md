@@ -1,5 +1,5 @@
 
-# Electrical Vehicle Expert (EVE) – Internship Project
+# Electrical Vehicle Expert (EVE) – Project
 
 ## Project Overview
 The **Electrical Vehicle Expert (EVE)** project focuses on analyzing electric vehicle (EV) performance data to predict **battery health**, **charging stress**, and **usage efficiency** using machine learning and interactive visualization through Streamlit.
@@ -23,7 +23,7 @@ This project aims to:
 - **Manufacturers:** Use insights to enhance EV design and safety measures.
 
 
-```markdown
+
 
 ## Technologies Used
 - **Programming Language:** Python  
@@ -33,7 +33,7 @@ This project aims to:
 
 
 ## Folder Structure
-
+```markdown
 
 EVE-ELECTRICAL VEHICLE EXPERT/
 │
@@ -41,6 +41,7 @@ EVE-ELECTRICAL VEHICLE EXPERT/
 │
 ├── app/
 │ └── eve_dashboard.py → Streamlit dashboard for visualization
+| |__ eve_chatbox.py -> chatbox code
 │
 ├── data/
 │ ├── cleaned_ev_data.csv → Cleaned dataset
@@ -61,7 +62,7 @@ EVE-ELECTRICAL VEHICLE EXPERT/
 │ ├── EVE_pipeline.py → Complete data-to-model pipeline
 │ ├── feature_engineering_eda.py → Exploratory data analysis and feature creation
 │ └── ml_modeling.py → Model training and evaluation script
-│
+│__ .env
 ├── .gitignore → Ignored files and folders
 ├── requirements.txt → Python dependencies
 └── README.md → Project documentation
