@@ -3,18 +3,33 @@ import pandas as pd
 import plotly.express as px
 import joblib
 import os
+import sys
+import importlib.util
+import time
 from pathlib import Path
-from dotenv import load_dotenv
 
-# Paths
+# -------------------------------------------------------------------
+# Setup Paths
+# -------------------------------------------------------------------
+BASE_DIR = Path(__file__).resolve().parent
+DATA_PATH = BASE_DIR.parent / "data" / "processed_ev_data.csv"
+MODEL_PATH = BASE_DIR.parent / "models"
+CHATBOX_PATH = BASE_DIR / "eve_chatbox.py"
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-DATA_PATH = BASE_DIR / "data" / "processed_ev_data.csv"
-MODEL_PATH = BASE_DIR / "models"
+# -------------------------------------------------------------------
+# Dynamic Import for eve_chatbox (never fails)
+# -------------------------------------------------------------------
+try:
+    from app.eve_chatbox import run_chatbox
+except ImportError:
+    spec = importlib.util.spec_from_file_location("eve_chatbox", CHATBOX_PATH)
+    chatbox = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(chatbox)
+    run_chatbox = chatbox.run_chatbox
 
-
-# Load Data & Models
-
+# -------------------------------------------------------------------
+# Load Data and Models
+# -------------------------------------------------------------------
 @st.cache_data
 def load_data():
     return pd.read_csv(DATA_PATH)
@@ -26,96 +41,71 @@ def load_models():
     le = joblib.load(MODEL_PATH / "label_encoder.pkl")
     return rf_model, gb_model, le
 
-
-# Page Config & Custom Styling
-
+# -------------------------------------------------------------------
+# Page Configuration & Custom Styling
+# -------------------------------------------------------------------
 st.set_page_config(page_title="EVE Dashboard", layout="wide")
 
 st.markdown("""
     <style>
-    /* Sidebar styling */
     [data-testid="stSidebar"] {
-        background-color: #151822;
-        color: #E3E6EB;
-        padding: 10px;
-        font-family: 'Poppins', sans-serif;
-    }
-    /* Main background */
-    [data-testid="stAppViewContainer"] {
-        background-color: #0D0F14;
+        background-color: #161A23;
         color: #E6EEF3;
-        font-family: 'Poppins', sans-serif;
+        padding-top: 20px;
     }
-    /* Headings */
+    [data-testid="stAppViewContainer"] {
+        background-color: #0E1117;
+        color: #E6EEF3;
+    }
     h1, h2, h3, h4 {
         color: #4CC9F0;
-        font-weight: 600;
+        font-family: 'Poppins', sans-serif;
     }
-    /* Metric labels */
-    div[data-testid="stMetricLabel"] {
-        color: #A8B2C3;
-        font-size: 13px;
-    }
-    /* Section banners */
     .section-header {
-        border-left: 4px solid #4CC9F0;
-        padding-left: 12px;
-        margin-top: 25px;
-        margin-bottom: 10px;
-        font-size: 22px;
-        font-weight: 600;
+        background: linear-gradient(90deg, rgba(76,201,240,0.08), rgba(114,9,183,0.03));
+        padding: 12px 16px;
+        border-radius: 6px;
+        margin-bottom: 18px;
     }
-    /* Buttons */
     div.stButton > button {
         background-color: #4CC9F0;
-        color: #fff;
-        border: none;
+        color: white;
         border-radius: 6px;
-        padding: 6px 16px;
+        padding: 8px 14px;
         font-weight: 500;
-        transition: all 0.3s ease;
+        border: none;
     }
     div.stButton > button:hover {
-        background-color: #38A3C8;
-    }
-    hr {
-        border: 0;
-        border-top: 1px solid #2C2F36;
-        margin-top: 30px;
-        margin-bottom: 20px;
+        background-color: #3AB0E0;
     }
     </style>
 """, unsafe_allow_html=True)
 
-
+# -------------------------------------------------------------------
 # Load Dataset & Models
-
+# -------------------------------------------------------------------
 df = load_data()
 rf_model, gb_model, le = load_models()
 
-
+# -------------------------------------------------------------------
 # Sidebar
+# -------------------------------------------------------------------
+st.sidebar.markdown("<h2 style='color:#4CC9F0;'>Electrical Vehicle Expert (EVE)</h2>", unsafe_allow_html=True)
+st.sidebar.caption("AI-powered EV analytics and insights platform")
 
-st.sidebar.title("Electrical Vehicle Expert (EVE)")
-st.sidebar.markdown("Advanced EV analytics and intelligent insights.")
-st.sidebar.markdown("---")
-
-# User Selection
 users = df["User ID"].unique()
-selected_user = st.sidebar.selectbox("User Selection", users)
+selected_user = st.sidebar.selectbox("Select User", users, key="user_select_dashboard")
 user_df = df[df["User ID"] == selected_user]
 user_info = user_df.iloc[0]
 
 st.sidebar.subheader("User & Vehicle Details")
-st.sidebar.write(f"**Vehicle Model:** {user_info.get('Vehicle Model', 'N/A')}")
-st.sidebar.write(f"**Battery Capacity:** {user_info.get('Battery Capacity (kWh)', 'N/A')} kWh")
-st.sidebar.write(f"**Charging Location:** {user_info.get('Charging Station Location', 'N/A')}")
-st.sidebar.write(f"**Vehicle Age:** {user_info.get('Vehicle Age (years)', 'N/A')} years")
-st.sidebar.write(f"**Charger Type:** {user_info.get('Charger Type', 'N/A')}")
-st.sidebar.write(f"**User Type:** {user_info.get('User Type', 'N/A')}")
-st.sidebar.markdown("---")
+st.sidebar.markdown(f"**Vehicle Model:** {user_info.get('Vehicle Model', 'N/A')}")
+st.sidebar.markdown(f"**Battery Capacity:** {user_info.get('Battery Capacity (kWh)', 'N/A')} kWh")
+st.sidebar.markdown(f"**Charging Location:** {user_info.get('Charging Station Location', 'N/A')}")
+st.sidebar.markdown(f"**Vehicle Age:** {user_info.get('Vehicle Age (years)', 'N/A')} years")
+st.sidebar.markdown(f"**Charger Type:** {user_info.get('Charger Type', 'N/A')}")
+st.sidebar.markdown(f"**User Type:** {user_info.get('User Type', 'N/A')}")
 
-# Navigation
 page = st.sidebar.radio(
     "Navigation",
     [
@@ -127,41 +117,66 @@ page = st.sidebar.radio(
         "User ML Predictions",
         "Help for New EV Users",
         "AI Chat Assistant"
-    ]
+    ],
+    key="main_nav"
 )
 
-# Helper banner
-def section_header(title, desc):
-    st.markdown(f"<div class='section-header'>{title}</div>", unsafe_allow_html=True)
-    st.caption(desc)
+# -------------------------------------------------------------------
+# Helper for Section Header
+# -------------------------------------------------------------------
+def section_header(title, subtitle=""):
+    st.markdown(f"<div class='section-header'><h3>{title}</h3><p>{subtitle}</p></div>", unsafe_allow_html=True)
 
+# -------------------------------------------------------------------
+# Smooth Page Transition Animation
+# -------------------------------------------------------------------
+with st.spinner(f"Loading {page}..."):
+    time.sleep(0.8)
 
-# Dashboard Pages
-
+# -------------------------------------------------------------------
+# Dashboard Overview
+# -------------------------------------------------------------------
 if page == "Dashboard Overview":
-    section_header("Dashboard Overview", "Fleet-wide and user-specific performance summary.")
+    section_header("Dashboard Overview", "Fleet-wide and user-specific performance summary")
     col1, col2, col3 = st.columns(3)
     col1.metric("Total Users", len(users))
     col2.metric("Fleet Avg Battery Health", f"{df['Battery Health Score'].mean():.2f}%")
     col3.metric("Fleet Avg Energy Consumed", f"{df['Energy Consumed (kWh)'].mean():.2f} kWh")
+    st.markdown("Tip: View 'User Analytics' to explore detailed charging and usage patterns.")
 
+# -------------------------------------------------------------------
+# Overall Analytics
+# -------------------------------------------------------------------
 elif page == "Overall Analytics":
-    section_header("Overall Analytics", "Explore how the EV fleet performs across all metrics.")
-    fig1 = px.histogram(df, x="Battery Health Score", nbins=30, title="Battery Health Distribution")
+    section_header("Overall Analytics", "Comprehensive EV performance analysis across fleet")
+    fig1 = px.histogram(df, x="Battery Health Score", nbins=30,
+                        title="Battery Health Distribution", color_discrete_sequence=["#4CC9F0"])
     st.plotly_chart(fig1, use_container_width=True)
+
     fig2 = px.scatter(df, x="Charging Rate (kW)", y="Energy Consumed (kWh)",
                       color="Temperature Stress", color_continuous_scale="Viridis",
                       title="Charging Rate vs Energy Consumed")
     st.plotly_chart(fig2, use_container_width=True)
 
+# -------------------------------------------------------------------
+# User Analytics
+# -------------------------------------------------------------------
 elif page == "User Analytics":
-    section_header("User Analytics", f"Detailed performance for {selected_user}")
-    fig1 = px.line(user_df, x=user_df.index, y="Battery Health Score",
-                   markers=True, title="Battery Health Over Time")
+    section_header("User Analytics", f"Detailed performance insights for {selected_user}")
+    fig1 = px.line(user_df, x=user_df.index, y="Battery Health Score", markers=True,
+                   title="Battery Health Over Time", color_discrete_sequence=["#4CC9F0"])
     st.plotly_chart(fig1, use_container_width=True)
 
+    fig2 = px.scatter(user_df, x="Usage Ratio", y="Temperature Stress",
+                      color="Battery Health Score", color_continuous_scale="RdYlGn",
+                      title="Usage vs Temperature Stress")
+    st.plotly_chart(fig2, use_container_width=True)
+
+# -------------------------------------------------------------------
+# User vs Fleet Comparison
+# -------------------------------------------------------------------
 elif page == "User vs Fleet Comparison":
-    section_header("User vs Fleet Comparison", "Compare your EV with fleet averages.")
+    section_header("User vs Fleet Comparison", "Compare your EV performance with overall fleet")
     metrics = {
         "Battery Health": "Battery Health Score",
         "Energy Consumed": "Energy Consumed (kWh)",
@@ -178,27 +193,31 @@ elif page == "User vs Fleet Comparison":
     })
     st.bar_chart(comparison_df.set_index("Metric"))
 
+# -------------------------------------------------------------------
+# Overall ML Predictions
+# -------------------------------------------------------------------
 elif page == "Overall ML Predictions":
-    section_header("Overall ML Predictions", "Fleet-wide ML-based stress analysis.")
+    section_header("Overall ML Predictions", "Predicted stress levels across the fleet")
     X_all = df.drop(["Stress Risk", "Battery Health Score"], axis=1, errors="ignore")
     X_all = pd.get_dummies(X_all, drop_first=True).reindex(columns=rf_model.feature_names_in_, fill_value=0)
     predicted_stress = le.inverse_transform(rf_model.predict(X_all))
     df["Predicted Stress Risk"] = predicted_stress
-    st.subheader("Fleet Predicted Stress Distribution")
     st.bar_chart(df["Predicted Stress Risk"].value_counts())
 
+# -------------------------------------------------------------------
+# User ML Predictions
+# -------------------------------------------------------------------
 elif page == "User ML Predictions":
-    section_header("User ML Predictions", f"Predict battery health & stress for {selected_user}")
+    section_header("User ML Predictions", f"AI-powered predictions for {selected_user}")
     col1, col2, col3 = st.columns(3)
     with col1:
-        charging_rate = st.number_input("Charging Rate (kW)", value=float(user_df["Charging Rate (kW)"].mean()))
+        charging_rate = st.number_input("Charging Rate (kW)", value=float(user_df["Charging Rate (kW)"].mean()), key="cr_input")
     with col2:
-        energy_consumed = st.number_input("Energy Consumed (kWh)", value=float(user_df["Energy Consumed (kWh)"].mean()))
+        energy_consumed = st.number_input("Energy Consumed (kWh)", value=float(user_df["Energy Consumed (kWh)"].mean()), key="ec_input")
     with col3:
-        temp_stress = st.number_input("Temperature Stress", value=float(user_df["Temperature Stress"].mean()))
-    usage_ratio = st.slider("Usage Ratio", 0.0, 1.0, float(user_df["Usage Ratio"].mean()), 0.01)
-
-    if st.button("Run Predictions"):
+        temp_stress = st.number_input("Temperature Stress", value=float(user_df["Temperature Stress"].mean()), key="ts_input")
+    usage_ratio = st.slider("Usage Ratio", 0.0, 1.0, float(user_df["Usage Ratio"].mean()), 0.01, key="ur_slider")
+    if st.button("Run Predictions", key="predict_btn"):
         input_df = pd.DataFrame({
             "Charging Rate (kW)": [charging_rate],
             "Energy Consumed (kWh)": [energy_consumed],
@@ -212,20 +231,89 @@ elif page == "User ML Predictions":
         st.success(f"Predicted Stress Risk: {stress_label}")
         st.info(f"Predicted Battery Health Score: {health_pred:.2f}%")
 
+# -------------------------------------------------------------------
+# Help for New EV Users
+# -------------------------------------------------------------------
 elif page == "Help for New EV Users":
-    section_header("Help for New EV Users", "A quick guide to understanding your EV analytics.")
+    section_header("Help for New EV Users", "Learn how to use the AI chatbox and predictions effectively")
+
     st.markdown("""
-    **Key Metrics:**
-    - Battery Health Score – Higher is better.
-    - Charging Rate – Fast charging increases stress.
-    - Energy Consumed – Tracks usage efficiency.
-    - Temperature Stress – Battery strain due to heat.
-    - Usage Ratio – How actively the vehicle is used.
+    ### Understanding the AI Chatbox
+    The **EVE Smart AI Assistant** is designed to act as your personal EV advisor.  
+    It uses **Gemini 2.5 Pro** to analyze your uploaded vehicle data and provide detailed, data-driven insights.  
+    You can chat with it just like you would with a real EV expert.
+
+    **How to Use the Chatbox:**
+    1. Type a question or topic in the chat input field at the bottom of the page.  
+    2. You can ask about:
+       - EV model comparisons (e.g., “Compare Tata Nexon EV and MG ZS EV.”)  
+       - Battery health improvement tips (e.g., “How do I extend my EV battery life?”)  
+       - Market insights (e.g., “What is the price of Hyundai Kona EV?”)  
+       - Vehicle performance analysis (e.g., “Analyze my vehicle performance this month.”)
+    3. EVE processes your question using both **your EV dataset** and **live information (via Tavily API)** to generate a detailed response.  
+    4. The chat history is automatically saved, so you can refresh or revisit the page without losing past conversations.  
+    5. Each answer includes:
+       - **Analytical Insights** – Interpretation of what the data reveals about your EV.  
+       - **Numerical Evidence** – Values and comparisons drawn directly from your dataset.  
+       - **Technical Explanation** – What’s happening behind the scenes in your EV system.  
+       - **Recommendations** – Steps to improve efficiency or select the right model.  
+       - **Summary Points** – Key takeaways in concise bullet form.
+
+    **Why It’s Useful:**
+    - Helps you make **data-backed EV purchase decisions**.  
+    - Gives **personalized battery care suggestions** using your actual EV performance data.  
+    - Provides **real-time market updates** for comparing new models and pricing.  
+    - Acts as a **virtual EV consultant** — available anytime.
+
+    ---
+
+    ### Making the Most of ML Predictions
+    The **Machine Learning Prediction** tools in EVE help you understand how different factors affect your EV’s long-term health.  
+    These models are trained using real-world EV data to simulate battery performance and stress conditions.
+
+    **How to Use ML Predictions:**
+    1. Go to **User ML Predictions** in the sidebar.  
+    2. Adjust the following input parameters:
+       - **Charging Rate (kW)** – Higher values mean faster charging, but more stress.  
+       - **Energy Consumed (kWh)** – Reflects how much energy your trips or charging cycles use.  
+       - **Temperature Stress** – Shows heat-induced strain on the battery.  
+       - **Usage Ratio** – Indicates how intensively the vehicle is used.  
+    3. Click **Run Predictions** to see:
+       - Your **Predicted Stress Risk** (Low / Medium / High).  
+       - Your **Predicted Battery Health Score (%)**.
+
+    **How Predictions Help You:**
+    - Identify if your **current charging habits** are putting too much stress on the battery.  
+    - Simulate different scenarios (e.g., reduce charging rate or temperature) to see how the results change.  
+    - Learn the **optimal balance** between fast charging and battery preservation.  
+    - Anticipate potential battery degradation early, avoiding costly replacements.  
+    - Make informed choices for **charging station usage, route planning**, and **maintenance timing**.
+
+    ---
+
+    ### Combining AI and ML for Maximum Benefit
+    - Use **ML Predictions** to experiment and see how your charging behavior affects the battery.  
+    - Then, use the **AI Chatbox** to ask EVE for specific recommendations based on your prediction results.  
+      *Example:*  
+      “EVE, my predicted stress risk is high — what can I do to lower it?”  
+    - This combination gives you both **data-based forecasts** and **expert-level advice**, helping you optimize your EV performance intelligently.
+
+    ---
+
+    ### Summary for New Users
+    - The **Chatbox** is your interactive guide — use it for explanations, comparisons, and personalized EV tips.  
+    - The **Prediction Tools** are your diagnostic instruments — use them to experiment and understand your EV better.  
+    - Together, they help you:
+      - Maintain battery health  
+      - Reduce operating costs  
+      - Extend vehicle life  
+      - Make smarter EV purchase or maintenance decisions
     """)
 
-elif page == "AI Chat Assistant":
-    from eve_chatbox import run_chatbox
-    run_chatbox(df, user_df, selected_user)
 
-st.markdown("<hr>", unsafe_allow_html=True)
+# -------------------------------------------------------------------
+# AI Chat Assistant
+# -------------------------------------------------------------------
+elif page == "AI Chat Assistant":
+    run_chatbox(df, user_df, selected_user)
 
