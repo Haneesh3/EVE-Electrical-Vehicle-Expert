@@ -51,7 +51,11 @@ def run_chatbox(df: pd.DataFrame, user_df: pd.DataFrame, selected_user: str):
             - Analyze my vehicle performance and stress risk  
             """)
     with col2:
+<<<<<<< HEAD
         if st.button("Clear Chat", key="clear_chat_button"):
+=======
+        if st.button(" Clear Chat", key="clear_chat_button"):
+>>>>>>> cc3f6f81bd351e6f126f6418f04769006e80e240
             st.session_state.chat_history = []
             save_chat_history([])
             st.success("Chat cleared successfully.")
