@@ -1,36 +1,11 @@
-# ==============================
-# Electrical Vehicle Expert (EVE)
-# Streamlit + Gemini 2.5 Pro Dashboard
-# ==============================
-
-# Core
 streamlit==1.39.0
 pandas==2.2.3
 numpy==1.26.4
-
-# Visualization
 plotly==5.24.1
 matplotlib==3.9.2
-
-# Machine Learning
 scikit-learn==1.5.2
 joblib==1.4.2
-
-# Environment Management
 python-dotenv==1.0.1
 pathlib==1.0.1
-
-# Google Gemini AI API
-google-generativeai==0.8.2
-
-#  Tavily API Client
-tavily==0.3.0
-
-# Optional but Recommended (UI/Styling & Performance)
-altair==5.4.1
-watchdog==5.0.3
-
-# Deployment (optional)
-protobuf==5.28.2
-requests==2.32.3
-
+google-genai   # (use the new official Google Gen AI SDK)
+tavily-python==0.7.12  # latest release of the Tavily Python SDK
