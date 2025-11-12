@@ -2,8 +2,7 @@ import io
 import os
 import pandas as pd
 from dotenv import load_dotenv
-import google.generativeai as genai
-
+import google.genai as genai
 try:
     from tavily import TavilyClient
 except ImportError:
